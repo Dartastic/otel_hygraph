@@ -2,7 +2,7 @@ name: otel_hygraph
 description: >-
   OpenTelemetry instrumentation for hygraph by Dartastic.io. Adds standard
   OpenTelemetry observability to applications that use hygraph.
-version: 0.1.0
+version: 0.1.1-wip
 repository: https://github.com/dartastic/otel_hygraph
 homepage: https://dartastic.io
 

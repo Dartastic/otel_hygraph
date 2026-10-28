@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_hygraph_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_hygraph';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class HygraphResult {
+  /// Creates a result.
   const HygraphResult({
     this.itemCount,
     this.recordsRead,
@@ -55,8 +56,13 @@ class HygraphResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class HygraphCallResult<T> {
+  /// Creates a call result.
   const HygraphCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final HygraphResult? result;
 }
@@ -85,68 +91,68 @@ Future<T> tracedHygraph<T>({
   final span = _tracer().startSpan(
     'hygraph $operationName',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.itemCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'hygraph.item_count',
           r.result!.itemCount!,
         ));
       }
       if (r.result!.recordsRead != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'hygraph.records_read',
           r.result!.recordsRead!,
         ));
       }
       if (r.result!.stage != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'hygraph.stage',
           r.result!.stage!,
         ));
       }
       if (r.result!.locales != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'hygraph.locales',
           r.result!.locales!,
         ));
       }
       if (r.result!.operationKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'graphql.operation.type',
           r.result!.operationKind!,
         ));
       }
       if (r.result!.endpointKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'hygraph.endpoint.kind',
           r.result!.endpointKind!,
         ));
       }
       if (r.result!.cacheHit != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'hygraph.cache.hit',
           r.result!.cacheHit!,
         ));
       }
       if (r.result!.complexity != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'hygraph.complexity',
           r.result!.complexity!,
         ));
       }
       if (r.result!.requestId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'hygraph.request.id',
           r.result!.requestId!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -157,13 +163,13 @@ Future<T> tracedHygraph<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
